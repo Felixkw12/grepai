@@ -39,8 +39,8 @@ This command will:
 }
 
 func init() {
-	initCmd.Flags().StringVarP(&initProvider, "provider", "p", "", "Embedding provider (ollama, lmstudio, openai, synthetic, openrouter, or requesty)")
-	initCmd.Flags().StringVarP(&initModel, "model", "m", "", "Embedding model (for openai/openrouter/requesty: text-embedding-3-small, text-embedding-3-large; openrouter also supports qwen3-embedding-8b)")
+	initCmd.Flags().StringVarP(&initProvider, "provider", "p", "", "Embedding provider (ollama, lmstudio, openai, synthetic, openrouter, requesty, or opper)")
+	initCmd.Flags().StringVarP(&initModel, "model", "m", "", "Embedding model (for openai/openrouter/requesty/opper: text-embedding-3-small, text-embedding-3-large; openrouter also supports qwen3-embedding-8b)")
 	initCmd.Flags().StringVarP(&initBackend, "backend", "b", "", "Storage backend (gob, postgres, or qdrant)")
 	initCmd.Flags().BoolVar(&initNonInteractive, "yes", false, "Use defaults without prompting")
 	initCmd.Flags().BoolVar(&initInherit, "inherit", false, "Inherit configuration from main worktree (for git worktrees)")
@@ -124,6 +124,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 			fmt.Println("  4) synthetic (cloud, free embedding API)")
 			fmt.Println("  5) openrouter (cloud, multi-provider gateway)")
 			fmt.Println("  6) requesty (cloud, multi-provider gateway)")
+			fmt.Println("  7) opper (cloud, EU-hosted multi-provider gateway)")
 			fmt.Print("Choice [1]: ")
 
 			input, _ := reader.ReadString('\n')
@@ -182,6 +183,11 @@ func runInit(cmd *cobra.Command, args []string) error {
 				cfg.Embedder.Endpoint = "https://router.requesty.ai/v1"
 				cfg.Embedder.Model = "openai/text-embedding-3-small"
 				// Requesty: leave Dimensions nil to use model's native dimensions
+			case "7", "opper":
+				cfg.Embedder.Provider = "opper"
+				cfg.Embedder.Endpoint = "https://api.opper.ai/v3/compat"
+				cfg.Embedder.Model = "text-embedding-3-small"
+				// Opper: leave Dimensions nil to use model's native dimensions
 			default:
 				cfg.Embedder.Provider = "ollama"
 				fmt.Print("Ollama endpoint [http://localhost:11434]: ")
@@ -218,6 +224,10 @@ func runInit(cmd *cobra.Command, args []string) error {
 				cfg.Embedder.Model = resolveInitModel(initProvider, initModel)
 				cfg.Embedder.Endpoint = "https://router.requesty.ai/v1"
 				// Requesty: leave Dimensions nil to use model's native dimensions
+			case "opper":
+				cfg.Embedder.Model = resolveInitModel(initProvider, initModel)
+				cfg.Embedder.Endpoint = "https://api.opper.ai/v3/compat"
+				// Opper: leave Dimensions nil to use model's native dimensions
 			}
 		}
 
@@ -309,6 +319,10 @@ func runInit(cmd *cobra.Command, args []string) error {
 				cfg.Embedder.Endpoint = "https://router.requesty.ai/v1"
 				cfg.Embedder.Dimensions = nil
 				cfg.Embedder.Model = resolveInitModel(initProvider, initModel)
+			case "opper":
+				cfg.Embedder.Endpoint = "https://api.opper.ai/v3/compat"
+				cfg.Embedder.Dimensions = nil
+				cfg.Embedder.Model = resolveInitModel(initProvider, initModel)
 			}
 		}
 		if initBackend != "" {
@@ -357,6 +371,9 @@ func runInit(cmd *cobra.Command, args []string) error {
 	case "requesty":
 		fmt.Println("\nMake sure REQUESTY_API_KEY or OPENAI_API_KEY is set in your environment.")
 		fmt.Println("  Get your API key at: https://app.requesty.ai/api-keys")
+	case "opper":
+		fmt.Println("\nMake sure OPPER_API_KEY is set in your environment.")
+		fmt.Println("  Get your API key at: https://platform.opper.ai")
 	}
 
 	return nil
@@ -390,6 +407,11 @@ func resolveInitModel(provider, requestedModel string) string {
 			return requestedModel
 		}
 		return config.DefaultRequestyEmbeddingModel
+	case "opper":
+		if requestedModel != "" {
+			return requestedModel
+		}
+		return config.DefaultOpperEmbeddingModel
 	default:
 		return requestedModel
 	}

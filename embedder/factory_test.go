@@ -146,6 +146,29 @@ func TestNewFromConfig_Requesty(t *testing.T) {
 	}
 }
 
+func TestNewFromConfig_Opper(t *testing.T) {
+	t.Setenv("OPPER_API_KEY", "test-key")
+
+	cfg := &config.Config{
+		Embedder: config.EmbedderConfig{
+			Provider: "opper",
+			Model:    "text-embedding-3-small",
+			Endpoint: "https://api.opper.ai/v3/compat",
+		},
+	}
+
+	emb, err := NewFromConfig(cfg)
+	if err != nil {
+		t.Fatalf("failed to create embedder: %v", err)
+	}
+	defer emb.Close()
+
+	_, ok := emb.(*OpperEmbedder)
+	if !ok {
+		t.Errorf("expected *OpperEmbedder, got %T", emb)
+	}
+}
+
 func TestNewFromConfig_UnknownProvider(t *testing.T) {
 	cfg := &config.Config{
 		Embedder: config.EmbedderConfig{

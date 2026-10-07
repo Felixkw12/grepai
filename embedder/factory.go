@@ -107,6 +107,20 @@ func NewFromConfig(cfg *config.Config) (Embedder, error) {
 		}
 		return NewRequestyEmbedder(opts...)
 
+	case "opper":
+		opts := []OpperOption{
+			WithOpperModel(cfg.Embedder.Model),
+			WithOpperKey(cfg.Embedder.APIKey),
+			WithOpperEndpoint(cfg.Embedder.Endpoint),
+		}
+		if cfg.Embedder.Dimensions != nil {
+			opts = append(opts, WithOpperDimensions(*cfg.Embedder.Dimensions))
+		}
+		if timeout > 0 {
+			opts = append(opts, WithOpperTimeout(timeout))
+		}
+		return NewOpperEmbedder(opts...)
+
 	default:
 		return nil, fmt.Errorf("unknown embedding provider: %s", cfg.Embedder.Provider)
 	}

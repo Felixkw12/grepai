@@ -48,6 +48,7 @@ const LockFileName = "stats.json.lock"
 var cloudProviders = map[string]bool{
 	"openai":     true,
 	"openrouter": true,
+	"opper":      true,
 	"requesty":   true,
 	"synthetic":  true,
 }

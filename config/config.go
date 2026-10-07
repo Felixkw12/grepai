@@ -27,6 +27,7 @@ const (
 	DefaultSyntheticEmbeddingModel  = "hf:nomic-ai/nomic-embed-text-v1.5"
 	DefaultOpenRouterEmbeddingModel = "openai/text-embedding-3-small"
 	DefaultRequestyEmbeddingModel   = "openai/text-embedding-3-small"
+	DefaultOpperEmbeddingModel      = "text-embedding-3-small"
 	OpenAIEmbeddingModelLarge       = "text-embedding-3-large"
 	OpenRouterEmbeddingModelLarge   = "openai/text-embedding-3-large"
 	OpenRouterEmbeddingModelQwen8B  = "qwen/qwen3-embedding-8b"
@@ -37,6 +38,7 @@ const (
 	DefaultSyntheticEndpoint  = "https://api.synthetic.new/openai/v1"
 	DefaultOpenRouterEndpoint = "https://openrouter.ai/api/v1"
 	DefaultRequestyEndpoint   = "https://router.requesty.ai/v1"
+	DefaultOpperEndpoint      = "https://api.opper.ai/v3/compat"
 
 	DefaultLocalEmbeddingDimensions = 768
 	DefaultOpenAIDimensions         = 1536
@@ -110,7 +112,7 @@ type BoostRule struct {
 }
 
 type EmbedderConfig struct {
-	Provider    string `yaml:"provider"` // ollama | lmstudio | openai | synthetic | openrouter | requesty
+	Provider    string `yaml:"provider"` // ollama | lmstudio | openai | synthetic | openrouter | requesty | opper
 	Model       string `yaml:"model"`
 	Endpoint    string `yaml:"endpoint,omitempty"`
 	APIKey      string `yaml:"api_key,omitempty"`
@@ -137,7 +139,7 @@ func (e *EmbedderConfig) GetDimensions() int {
 		return *e.Dimensions
 	}
 	switch e.Provider {
-	case "openai", "openrouter", "requesty":
+	case "openai", "openrouter", "requesty", "opper":
 		switch strings.TrimSpace(e.Model) {
 		case OpenAIEmbeddingModelLarge, OpenRouterEmbeddingModelLarge:
 			return DefaultOpenAILargeDimensions
@@ -185,6 +187,13 @@ func DefaultEmbedderForProvider(provider string) EmbedderConfig {
 			Provider:   "requesty",
 			Model:      DefaultRequestyEmbeddingModel,
 			Endpoint:   DefaultRequestyEndpoint,
+			Dimensions: nil,
+		}
+	case "opper":
+		return EmbedderConfig{
+			Provider:   "opper",
+			Model:      DefaultOpperEmbeddingModel,
+			Endpoint:   DefaultOpperEndpoint,
 			Dimensions: nil,
 		}
 	case "lmstudio":

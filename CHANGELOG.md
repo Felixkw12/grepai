@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Opper Provider**: Add Opper as a new embedding provider
+  - Opper (`opper`): EU-hosted multi-provider gateway via `https://api.opper.ai/v3/compat` with OpenAI-compatible embeddings (`text-embedding-3-small`, 1536 dims)
+  - API key resolved from `OPPER_API_KEY` (no `OPENAI_API_KEY` fallback)
+  - Integrated into the embedder factory (`NewFromConfig`, including `request_timeout_seconds`), `grepai init` prompts, and shell completion
+
 ## [0.37.0] - 2026-09-10
 
 ### Added
