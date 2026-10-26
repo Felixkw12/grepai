@@ -224,6 +224,20 @@ embedder:
 
 Leave `dimensions` unset for models that do not accept the parameter, such as `text-embedding-ada-002`.
 
+### Opper
+
+[Opper](https://opper.ai) is an EU-hosted AI gateway with an OpenAI-compatible API, so it works with the same `openai` provider:
+
+```yaml
+embedder:
+  provider: openai
+  model: text-embedding-3-small
+  endpoint: https://api.opper.ai/v3/compat
+  api_key: your-opper-key
+```
+
+Other embedding models are listed in Opper's public catalog at `https://api.opper.ai/v3/models`.
+
 ### Available Models
 
 | Model | Dimensions |
